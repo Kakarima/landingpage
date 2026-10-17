@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude Code — Votre partenaire de code dans le terminal</title>
+<meta name="description" content="Claude Code lit votre base de code, édite vos fichiers, lance vos commandes et vos tests. Déléguez les tâches de développement depuis votre terminal.">
+<style>
+  :root {
+    --bg: #faf9f5;
+    --fg: #1f1e1d;
+    --muted: #6b6a66;
+    --accent: #d97757;
+    --accent-dark: #b85c3e;
+    --card: #ffffff;
+    --border: #e8e6dc;
+    --code-bg: #1f1e1d;
+    --code-fg: #f4f1e8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1918;
+      --fg: #f4f1e8;
+      --muted: #a8a59c;
+      --card: #242321;
+      --border: #3a3835;
+      --code-bg: #0f0e0d;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+  }
+  a { color: inherit; text-decoration: none; }
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 20px; }
+
+  header { padding: 20px 0; }
+  header .wrap { display: flex; justify-content: space-between; align-items: center; }
+  .logo { font-weight: 700; font-size: 1.1rem; display: flex; align-items: center; gap: 8px; }
+  .logo span { color: var(--accent); font-size: 1.4rem; }
+  nav { display: flex; gap: 24px; font-size: .95rem; color: var(--muted); }
+  nav a:hover { color: var(--fg); }
+
+  .btn {
+    display: inline-block; padding: 12px 22px; border-radius: 10px;
+    font-weight: 600; background: var(--accent); color: #fff;
+    transition: background .15s;
+  }
+  .btn:hover { background: var(--accent-dark); }
+  .btn.ghost { background: transparent; color: var(--fg); border: 1px solid var(--border); }
+  .btn.ghost:hover { background: var(--card); }
+
+  .hero { text-align: center; padding: 72px 0 56px; }
+  .badge {
+    display: inline-block; font-size: .8rem; padding: 4px 12px; border-radius: 99px;
+    border: 1px solid var(--border); color: var(--muted); margin-bottom: 20px;
+  }
+  h1 { font-size: clamp(2.2rem, 6vw, 3.8rem); line-height: 1.1; letter-spacing: -.02em; max-width: 14em; margin: 0 auto 20px; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .hero p.lead { font-size: 1.2rem; color: var(--muted); max-width: 36em; margin: 0 auto 32px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .terminal {
+    background: var(--code-bg); color: var(--code-fg); border-radius: 12px;
+    max-width: 680px; margin: 48px auto 0; text-align: left;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: .92rem;
+    box-shadow: 0 20px 50px rgba(0,0,0,.18); overflow: hidden;
+  }
+  .terminal .bar { display: flex; gap: 6px; padding: 12px 14px; background: rgba(255,255,255,.06); }
+  .terminal .bar i { width: 11px; height: 11px; border-radius: 50%; background: #55534e; }
+  .terminal pre { padding: 18px 20px; white-space: pre-wrap; }
+  .terminal .p { color: var(--accent); }
+  .terminal .d { color: #8f8c82; }
+
+  section { padding: 64px 0; }
+  h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); letter-spacing: -.01em; text-align: center; margin-bottom: 12px; }
+  .sub { text-align: center; color: var(--muted); max-width: 34em; margin: 0 auto 40px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 24px; }
+  .card .ic { font-size: 1.6rem; margin-bottom: 10px; }
+  .card h3 { font-size: 1.05rem; margin-bottom: 6px; }
+  .card p { color: var(--muted); font-size: .95rem; }
+
+  .steps { counter-reset: s; display: grid; gap: 16px; max-width: 640px; margin: 0 auto; }
+  .step { display: flex; gap: 16px; align-items: flex-start; }
+  .step::before {
+    counter-increment: s; content: counter(s);
+    flex: none; width: 34px; height: 34px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 700;
+    display: grid; place-items: center;
+  }
+  .step code, .install code {
+    font-family: ui-monospace, Consolas, monospace; background: var(--code-bg); color: var(--code-fg);
+    padding: 3px 8px; border-radius: 6px; font-size: .9rem;
+  }
+
+  .final { text-align: center; background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 56px 24px; }
+  .final p { color: var(--muted); margin: 8px 0 26px; }
+
+  footer { padding: 40px 0; text-align: center; color: var(--muted); font-size: .88rem; }
+  @media (max-width: 600px) { nav { display: none; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <a class="logo" href="#"><span>✻</span> Claude Code</a>
+    <nav>
+      <a href="#features">Fonctionnalités</a>
+      <a href="#start">Démarrer</a>
+      <a href="https://docs.claude.com/en/docs/claude-code" target="_blank" rel="noopener">Documentation</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <span class="badge">Par Anthropic</span>
+    <h1>Déléguez votre code à <em>Claude</em>, directement depuis le terminal</h1>
+    <p class="lead">Claude Code comprend votre base de code, modifie vos fichiers, exécute vos commandes et vos tests, puis vous montre ce qu'il a fait.</p>
+    <div class="cta">
+      <a class="btn" href="#start">Commencer</a>
+      <a class="btn ghost" href="#features">Découvrir</a>
+    </div>
+
+    <div class="terminal" aria-label="Exemple de session Claude Code">
+      <div class="bar"><i></i><i></i><i></i></div>
+<pre><span class="p">$</span> claude
+<span class="d">&gt;</span> Corrige le test qui échoue dans auth.test.ts
+
+<span class="d">● Lecture de src/auth.ts, tests/auth.test.ts
+● Le jeton expire une seconde trop tôt (comparaison &lt; au lieu de &lt;=)
+● Modification de src/auth.ts
+● npm test → 42 tests passés ✓</span></pre>
+    </div>
+  </div>
+
+  <section id="features">
+    <div class="wrap">
+      <h2>Tout ce qu'il faut pour livrer plus vite</h2>
+      <p class="sub">Un assistant qui travaille dans votre environnement, avec vos outils.</p>
+      <div class="grid">
+        <div class="card"><div class="ic">🧠</div><h3>Comprend tout le projet</h3><p>Explore l'arborescence, lit le code pertinent et suit vos conventions sans que vous ayez à tout expliquer.</p></div>
+        <div class="card"><div class="ic">✏️</div><h3>Édite et exécute</h3><p>Modifie plusieurs fichiers, lance les commandes et les tests, puis corrige jusqu'à ce que ça passe.</p></div>
+        <div class="card"><div class="ic">🔀</div><h3>Intégré à Git</h3><p>Rédige les commits, crée les branches et prépare les pull requests à votre place.</p></div>
+        <div class="card"><div class="ic">🔌</div><h3>Extensible</h3><p>Branchez vos outils via MCP, ajoutez des hooks et des skills adaptés à votre équipe.</p></div>
+        <div class="card"><div class="ic">🛡️</div><h3>Vous gardez la main</h3><p>Un système de permissions vous laisse valider chaque action sensible avant son exécution.</p></div>
+        <div class="card"><div class="ic">💻</div><h3>Partout où vous codez</h3><p>Terminal, application de bureau, web et extensions VS Code et JetBrains.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="start">
+    <div class="wrap">
+      <h2>Prêt en trois étapes</h2>
+      <p class="sub">Aucune configuration compliquée.</p>
+      <div class="steps install">
+        <div class="step"><div>Installez Claude Code en suivant le <a href="https://docs.claude.com/en/docs/claude-code" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:underline">guide d'installation</a>.</div></div>
+        <div class="step"><div>Ouvrez le terminal dans votre projet et lancez <code>claude</code>.</div></div>
+        <div class="step"><div>Décrivez ce que vous voulez en langage naturel, par exemple « ajoute un formulaire de contact ».</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="final">
+        <h2>Codez avec un partenaire, pas seulement un outil</h2>
+        <p>Essayez Claude Code sur votre prochain projet.</p>
+        <a class="btn" href="https://docs.claude.com/en/docs/claude-code" target="_blank" rel="noopener">Lire la documentation</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">Landing page non officielle · Claude Code est un produit d'Anthropic.</div>
+</footer>
+
+</body>
+</html>
